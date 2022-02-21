@@ -2,32 +2,18 @@
   <div>
     <div class="point-box clearfix">
       <div class="point-wrap">
-        <p class="point-text">{{ col }}{{ row }} SCORE 🦡 :</p>
+        <p class="point-text">SCORE 🦡 :</p>
         <p class="count-mole">{{ score }}</p>
         <p class="point-text">TIME ⏱️ :</p>
         <p class="count-mole">{{ time }}</p>
       </div>
       <div class="btn-wrap">
-        <button
-          v-if="!isStart && !isStop"
-          @click="start"
-          type="button"
-          class="start-btn"
-        >
+        <BaseButton v-if="!isStart && !isStop" @click="start">
           PRESS START
-        </button>
-        <button
-          v-if="isStart && !isStop"
-          @click="pause"
-          type="button"
-          class="start-btn"
-        >
-          STOP
-        </button>
-        <button v-if="isStop" @click="restart" type="button" class="start-btn">
-          RESTART
-        </button>
-        <button @click="stop" type="button" class="start-btn">QUIT</button>
+        </BaseButton>
+        <BaseButton v-if="isStart && !isStop" @click="pause"> STOP </BaseButton>
+        <BaseButton v-if="isStop" @click="restart"> RESTART </BaseButton>
+        <BaseButton @click="stop">QUIT</BaseButton>
       </div>
     </div>
 
@@ -57,10 +43,13 @@
 let interval1 = null;
 let timer = null;
 import { mapMutations, mapGetters } from "vuex";
-
+import BaseButton from "@/components/common/Button";
 export default {
   mounted() {
     this.updateScoreLanking();
+  },
+  components: {
+    BaseButton,
   },
   computed: {
     ...mapGetters(["getMoleGameObject"]),
@@ -268,7 +257,7 @@ export default {
       let seconds = date.getSeconds();
       seconds = seconds < 10 ? "0" + seconds.toString() : seconds.toString();
 
-      return `${year}-${month}-${day}-${hour}-${minites}-${seconds}`;
+      return `${year}-${month}-${day} ${hour}:${minites}:${seconds}`;
     },
 
     updateScoreLanking() {
@@ -430,7 +419,6 @@ h1 {
   color: #f9f871;
 }
 .point-box {
-  background-color: #4e4e4e;
   /* width: 600px; */
   margin: 30px auto 30px auto;
   text-align: center;
@@ -441,7 +429,7 @@ h1 {
   font-size: 24px;
   font-weight: bold;
   margin: 15px 0 0 25%;
-  color: #f2ecff;
+  color: #222;
 }
 
 .count-mole {
@@ -449,6 +437,6 @@ h1 {
   font-size: 30px;
   font-weight: bold;
   margin: 10px 10px 0 60px;
-  color: #f2ecff;
+  color: #222;
 }
 </style>

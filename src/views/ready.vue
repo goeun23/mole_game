@@ -1,25 +1,50 @@
 <template>
   <div>
-    <div>행과 열은 최대 2에서 6까지 입력 가능합니다.</div>
-
-    <div>행 : <input type="number" v-model="row" /></div>
-    <div>열 : <input type="number" v-model="col" /></div>
-    <div v-if="col && row">
-      두더지는 최소 1에서 {{ countofMole }} 까지 입력 가능합니다.
-      <div>두더지 : <input type="number" v-model="mole" /></div>
-    </div>
-
-    <div>
-      <button @click="startGame">시작</button>
-      <div>{{ errorMsg }}</div>
-    </div>
+    <CommonPanel>
+      <div class="point-wrap">
+        <CommonText type="heading-02">🎮 두더지 게임 </CommonText>
+        <CommonText type="heading-sub-02"
+          >📍 행과 열은 최대 2에서 6까지 입력 가능합니다.</CommonText
+        >
+        <CommonText v-if="col && row" type="heading-sub-02"
+          >📍 두더지는 최소 1에서 {{ countofMole }} 까지 입력
+          가능합니다.</CommonText
+        >
+        <div class="input-wrap">
+          <CommonInput label="행의 수" type="number" v-model="col" />
+          <CommonInput label="열의 수" type="number" v-model="row" />
+          <CommonInput
+            label="두더지의 수"
+            :disabled="disabled"
+            type="number"
+            v-model="mole"
+          />
+        </div>
+      </div>
+      <div class="btn-wrap">
+        <CommonButton @click="startGame"> START </CommonButton>
+      </div>
+      <CommonText v-if="errorMsg" type="heading-sub-02">{{
+        errorMsg
+      }}</CommonText>
+    </CommonPanel>
   </div>
 </template>
 
 <script>
 import { mapMutations, mapGetters } from "vuex";
+import CommonButton from "@/components/common/Button";
+import CommonPanel from "@/components/common/Panel";
+import CommonText from "@/components/common/Text";
+import CommonInput from "@/components/common/Input";
 
 export default {
+  components: {
+    CommonButton,
+    CommonPanel,
+    CommonText,
+    CommonInput,
+  },
   data() {
     return {
       col: 0,
@@ -31,11 +56,19 @@ export default {
   computed: {
     ...mapGetters(["getMoleGameObject"]),
     countofMole() {
-      if (this.col > 0 && this.row > 0) {
+      if (this.col >= 2 && this.col <= 6 && this.row >= 2 && this.row <= 6) {
         return parseInt((this.col * this.row) / 2);
       } else {
         return 1;
       }
+    },
+    disabled() {
+      return !(
+        this.col >= 2 &&
+        this.col <= 6 &&
+        this.row >= 2 &&
+        this.row <= 6
+      );
     },
   },
 
@@ -84,3 +117,9 @@ export default {
   },
 };
 </script>
+
+<style>
+.input-wrap {
+  margin: 20px;
+}
+</style>

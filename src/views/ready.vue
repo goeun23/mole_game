@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import { mapMutations, mapGetters } from "vuex";
+
 export default {
   data() {
     return {
@@ -27,6 +29,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(["getMoleGameObject"]),
     countofMole() {
       if (this.col > 0 && this.row > 0) {
         return parseInt((this.col * this.row) / 2);
@@ -37,9 +40,8 @@ export default {
   },
 
   methods: {
-    dataInvalidCheck() {
-      const { col, row, mole, countofMole } = this;
-
+    ...mapMutations({ setMoleGameObject: "setMoleGameObject" }),
+    dataInvalidCheck({ col, row, mole, countofMole }) {
       // 행, 열, 두더지 하나라도 입력되지 않은 경우 > 오류
       if (col === 0 || row === 0 || mole === 0) {
         this.errorMsg = "입력값을 모두 입력해주세요!";
@@ -61,9 +63,24 @@ export default {
       return true;
     },
     startGame() {
-      if (this.dataInvalidCheck()) this.$router.push("/game");
+      const { col, row, mole, countofMole } = this;
+      if (this.dataInvalidCheck({ col, row, mole, countofMole })) {
+        this.setMoleGameObject({
+          col,
+          row,
+          mole,
+          countofMole,
+        });
+        return this.$router.push("/game");
+      }
     },
   },
-  mounted() {},
+  created() {
+    // 돔 그리기 전
+    const { col, row, mole } = this.getMoleGameObject;
+    this.col = col;
+    this.row = row;
+    this.mole = mole;
+  },
 };
 </script>

@@ -2,10 +2,10 @@
   <div>
     <div class="point-box clearfix">
       <div class="point-wrap">
-        <p id="point-text">{{ col }}{{ row }} SCORE 🦡 :</p>
-        <p id="count-mole">{{ score }}</p>
-        <p id="point-text">TIME ⏱️ :</p>
-        <p id="count-mole">{{ time }}</p>
+        <p class="point-text">{{ col }}{{ row }} SCORE 🦡 :</p>
+        <p class="count-mole">{{ score }}</p>
+        <p class="point-text">TIME ⏱️ :</p>
+        <p class="count-mole">{{ time }}</p>
       </div>
       <div class="btn-wrap">
         <button
@@ -56,11 +56,11 @@
 <script>
 let interval1 = null;
 let timer = null;
-import { mapGetters } from "vuex";
+import { mapMutations, mapGetters } from "vuex";
 
 export default {
   mounted() {
-    // 입력받은 행, 열, 최대 두더지 갯수 가져오기
+    this.updateScoreLanking();
   },
   computed: {
     ...mapGetters(["getMoleGameObject"]),
@@ -76,7 +76,7 @@ export default {
   },
   data() {
     return {
-      time: 60,
+      time: 5,
       score: 0,
       isStart: false,
       isStop: false,
@@ -89,6 +89,8 @@ export default {
     };
   },
   methods: {
+    ...mapMutations({ setCurrentGameScore: "setCurrentGameScore" }),
+
     pause() {
       // '일시정지' 버튼의 이벤트 핸들러
       this.isStop = true;
@@ -134,6 +136,14 @@ export default {
 
           // 노출된 두더지, bomb 모두 삭제
           this.clearAllMole();
+
+          // 현재 점수 저장
+          this.setCurrentGameScore(this.score);
+
+          // 랭킹 업데이트
+          this.updateScoreLanking();
+
+          this.$router.push("/score");
 
           alert("게임종료!");
           return;
@@ -209,9 +219,9 @@ export default {
     },
     clearIcon(icon) {
       // 크기 관련 클래스 모두 삭제
-      icon.classList.remove("small");
-      icon.classList.remove("medium");
-      icon.classList.remove("large");
+      icon?.classList.remove("small");
+      icon?.classList.remove("medium");
+      icon?.classList.remove("large");
     },
     getRandomInt(min, max) {
       //최댓값은 제외, 최솟값은 포함
@@ -238,6 +248,52 @@ export default {
     stop() {
       // '그만하기' 버튼 이벤트 핸들러
       this.$router.push("/ready");
+    },
+
+    setDateFormat(date) {
+      let year = date.getFullYear().toString();
+
+      let month = date.getMonth() + 1;
+      month = month < 10 ? "0" + month.toString() : month.toString();
+
+      let day = date.getDate();
+      day = day < 10 ? "0" + day.toString() : day.toString();
+
+      let hour = date.getHours();
+      hour = hour < 10 ? "0" + hour.toString() : hour.toString();
+
+      let minites = date.getMinutes();
+      minites = minites < 10 ? "0" + minites.toString() : minites.toString();
+
+      let seconds = date.getSeconds();
+      seconds = seconds < 10 ? "0" + seconds.toString() : seconds.toString();
+
+      return `${year}-${month}-${day}-${hour}-${minites}-${seconds}`;
+    },
+
+    updateScoreLanking() {
+      let recentScoreList = JSON.parse(localStorage.getItem("recentScoreList"));
+      if (recentScoreList === null) recentScoreList = [];
+
+      const entry = {
+        time: this.setDateFormat(new Date()),
+        score: this.score,
+      };
+
+      recentScoreList.push(entry);
+
+      recentScoreList.sort(function (a, b) {
+        if (a.score > b.score) {
+          return -1;
+        }
+        if (a.score < b.score) {
+          return 1;
+        }
+        // a must be equal to b
+        return 0;
+      });
+
+      localStorage.setItem("recentScoreList", JSON.stringify(recentScoreList));
     },
   },
 };
@@ -359,7 +415,7 @@ h1 {
   width: 100%;
 }
 .start-btn {
-  width: 30%;
+  width: 20%;
   height: 70px;
   font-size: 20px;
   font-weight: 900;
@@ -380,25 +436,19 @@ h1 {
   text-align: center;
   border-radius: 20px;
 }
-#point-text {
+.point-text {
   float: left;
   font-size: 24px;
   font-weight: bold;
   margin: 15px 0 0 25%;
   color: #f2ecff;
 }
-#count-mole {
+
+.count-mole {
   float: left;
   font-size: 30px;
   font-weight: bold;
   margin: 10px 10px 0 60px;
   color: #f2ecff;
-}
-#count-mole2 {
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  color: #f2ecff;
-  margin: 15px 0 0 0;
 }
 </style>
